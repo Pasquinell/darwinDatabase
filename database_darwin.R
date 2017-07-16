@@ -25,7 +25,7 @@ install.packages("rvest")
 install.packeges("xml2")
 library(xml2)
 library(rvest)
-setwd("C:/Users/pasquinell/Desktop")
+#setwd("C:/Users/pasquinell/Desktop")
 
 ###################### 1 Data extraction from darwin.edu.ar #######
 
@@ -67,7 +67,7 @@ for (let in letters){
 ##################### 2 File upload and list conversion #######
 
 # Upload file
-species_string <- read.table("lista_entrada.csv",
+species_string <- read.table("input.csv",
                              header = FALSE,
                              sep="/",
                              strip.white = TRUE,
@@ -153,7 +153,7 @@ df =  df[c("Especies","Familia","Genero", "Nombre cientifico", "Status","Habito"
            "Distribucion Argentina", "Paises limitrofes", "Notas", "Condicion",
            "Direccion")]
 
-write.table(df, file = "coincidencias.csv",row.names=FALSE, na="",col.names=TRUE, sep=",")
+write.table(df, file = "output.csv",row.names=FALSE, na="",col.names=TRUE, sep=",")
 write.table(df_error, file = "species_error.csv",row.names=FALSE, na="",col.names=FALSE, sep=",")
 
 print('############## The End ########')
