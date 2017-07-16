@@ -1,30 +1,24 @@
+# Code to extract databases from darwin.edu.ar
+############ Client: Cienciambiental (Environmental consultancy) ##################
 
-# Codigo para extraer bases de datos de darwin.edu.ar
-############ Contexto de consultor?a a Cienciambiental ##################
+# Author: Pasquinell Urbani
+# Date: 2016-03-03
 
-# Autor: Pasquinell Urbani
-# Inicio del codigo: 2016-03-03
+# Databases extraction from www.darwin.edu.ar
+# The final objective is to enter an xls. file with the binomials of the species and that the output
+# An xls. contains the names and all the characteristics of the species within the website
 
-# Extraccion de bases de dator de la pagina www.darwin.edu.ar
-# El objetivo final es ingresar un xls con los binomios de las especies y que la salida
-# sea un xls con los nombres de las especies y todas las caracteristicas que presenten cada
-# una dentro de la p?gina
-
-
-# Se obtienen los datos con el paquete rvest
-# Informaci?n sobre el paquete rvest: http://www.r-bloggers.com/rvest-easy-web-scraping-with-r/
-# Un buen ejemplo con rvest file:///C:/Users/pasquinell/Documents/R/win-library/3.2/rvest/doc/selectorgadget.html
+# Data is obtained with rvest package
+# Information of rvest package: http://www.r-bloggers.com/rvest-easy-web-scraping-with-r/
+# A good example with rvest file:///C:/Users/pasquinell/Documents/R/win-library/3.2/rvest/doc/selectorgadget.html
 # http://www.darwin.edu.ar/Proyectos/FloraArgentina/Especies.asp
 
-# para saber como extraer los datos de la p?gina, consultar en:
+# To learn how to extract the data from the page, check in:
 # https://cran.r-project.org/web/packages/rvest/vignettes/selectorgadget.html
 
 
-
 # Info temp
-# Seguir link en rvest http://htmlasks.com/following_ldquo_nextrdquo_link_with_relative_paths_using_rvest
-
-
+# Follow link at rvest http://htmlasks.com/following_ldquo_nextrdquo_link_with_relative_paths_using_rvest
 
 
 install.packages("rvest")
@@ -32,11 +26,10 @@ install.packeges("xml2")
 library(xml2)
 library(rvest)
 setwd("C:/Users/pasquinell/Desktop")
-#setwd("/Users/Alex/Dropbox/AO/Darwinion_CODIGO")
 
-###################### 1  Extraccion de datos de darwin.edu.ar #######
+###################### 1 Data extraction from darwin.edu.ar #######
 
-# Cargo la pagina
+# Load website
 
 letters = c("A", "B", "C","D","E","F", "G", "H", "I", "J", "K","L", "M", "N", "O",
             "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")
@@ -49,47 +42,43 @@ for (let in letters){
   string = sprintf( "http://www.darwin.edu.ar/Proyectos/FloraArgentina/Especies.asp?Letra=%s", let)
   print(string)
   #darwin = read_html("http://www.darwin.edu.ar/Proyectos/FloraArgentina/Especies.asp?Letra=A")
-  print("Explorando direccion web")
+  print("Exploring web direction")
   print(string)
   darwin = read_html(string)
   print(c("darwin_string", darwin))
-  # Escojo el nodo especifico (para encontrarlo se us? el programa SelecgorGadget)
+  # Choose the specific node (it can be found using the software: SelecgorGadget)
   ##########species_raw = html_nodes(darwin, "#content td a")
   species_raw = html_nodes(darwin, "td a")
-  # Con la funcion html_text limpio todo el codigo html(?) para obtener la lista de especies limpia
+  # With the tool html_text clean all the code html(?) to obtain the species list
   species_clean_i = html_text(species_raw)
-  # Con la funci?n html_attr obtengo el atributo "href", que corresponde al la direccion web de las especies
+  # through the function html_attr obtain the attribute "href", that corresponds to the species??? website
   species_dir_i = html_attr(species_raw, "href")
-  # acumulo species_raw
+  # Append species_raw
   species_clean = c(species_clean, species_clean_i)
   print(species_clean)
-  # acumulo species dir
+  # Append species dir
   species_dir = c(species_dir, species_dir_i)
-  }
+}
 
 
 
+#########  IF THE CODE IS RAN ONCE, START HERE   ################
 
+##################### 2 File upload and list conversion #######
 
-
-
-#########  SI LO CORRI UNA VEZ, PARTIR DESDE ACA   ################
-
-##################### 2  Carga de archivo y conversi?n en lista #######
-
-# Carga del archivo
+# Upload file
 species_string <- read.table("lista_entrada.csv",
-                 header = FALSE,
-                 sep="/",
-                 strip.white = TRUE,
-                 na.strings = "EMPTY")
+                             header = FALSE,
+                             sep="/",
+                             strip.white = TRUE,
+                             na.strings = "EMPTY")
 #typeof(species_string)
-# a la lista la convierto en vector para poder usarla en el for que viene
+# list must be converted into a vector in order to use it in the next loop 
 species_string = unlist(species_string)
 #species_string = c("Azorella diversifolia","Axonopus obtusifolius")
 
 
-######################## 3    Matching de especies y guardado de caracteristicas ################
+######################## 3    Species matching and characteristics saving ################
 
 df_raw = c()
 df_error = c()
@@ -99,7 +88,7 @@ col_dir = c()
 species_string = toupper(species_string)
 species_clean = toupper(species_clean)
 print(species_clean)
-# Corremos un for para cada una de las especies del archivo que cargamos
+# Run one code loop for each species of the uploaded file 
 for (j in species_string){
   print(c('j is', j))
   print(c('species_clean is', species_clean))
@@ -107,50 +96,48 @@ for (j in species_string){
   if (length(aa)==0){
     df_error = c(df_error,j)
     print(paste("la especie", j, "esta mal escrita"))}
-  # Grep puede encontrar dos subespecies distintas dentro de una especie, por eso se
-  # hace el siguiente for, para pasar por todas las subespecies en aa
+  # Grep can find two different subspecies within one species. As a result, run the next loop to consider all the subspecies in aa 
   for (i in aa){
     sp_number = match(i, species_clean)
     a = species_dir[sp_number] 
-    # Le adhiero la direccion base de la pagina
+    # Add the base website direction
     print(a)
     new_dir = paste("http://www.darwin.edu.ar", a, sep="")
-    # Obtengo el html de la especie que llam?
+    # Obtain the html of the selected species
     #specie_particular = read_html(new_dir)
     specie_particular = read_html(iconv(new_dir, to = "UTF-8"), encoding = "utf8")
-    # Extraigo las caracteristicas de cada especie del html
+    # Extract the characteristics of each species from the html
     info_raw = html_nodes(specie_particular, "table:nth-child(4) td")
     dato_extra_raw = html_nodes(specie_particular, "tr:nth-child(1) font")
-    # Refino de lo anterior la informaci?n relevante que no es codigo html
+    # Refine the relevant information that is not part of the html code 
     info_refine = html_text(info_raw)
     dato_extra = html_text(dato_extra_raw)
     col_scientif = c(col_scientif, dato_extra[1])
     col_status = c(col_status, dato_extra[2])
     col_dir = c(col_dir, new_dir)
-    # Creo el vector vec para despu?s rellenarlo con las caracteristicas de cada especie
+    # Create vector ???vec??? to fill in with the characteristics of each species 
     vec <- vector(mode="numeric", length=21)
-    # Al primer elemento del vector le llamo como la especie que esta buscando
+    # Name the first element of the vector with the species name of interest
     vec[1]=i
     k= 1 
     l=2
-    # Dado que la infomaci?n relevante esta cada dos cuadros realizo el siguiente while para
+    # Since the relevant information is every two frames,  the next loop is made for pasting it in the ???vec??? slots 
     # rescatar la informaci?n relevante y pegarla en los slots de vec
     while(k<21){vec[k+1] = info_refine[l] ;k = k+1;l=l+2}
-    # Voy acumulando los vec en df_raw
+    # Vectors ???vec??? are accumulated in df_raw
     df_raw = rbind(df_raw, vec)
- 
   }
 }
 
-# Remuevo las columnas de df_raw
+# Remove columns from df_raw
 rownames(df_raw) <- NULL
 
-# Les asigno un nombre a las columnas de df raw
+# Allocate names to the columns of df_raw
 colnames(df_raw) = c("Especies","Familia","Genero", "Especie", "Sigla sp.", 
                      "Subespecie", "Sigla ssp", "Variedad", "Sigla Var", "Forma",
-                     "Sigla f.", "Publicado en", "Volumen", "Paginas", "A?o", 
+                     "Sigla f.", "Publicado en", "Volumen", "Paginas", "Anho", 
                      "Habito", "Status", "Elevacion (m s.m.)",
-                     "Distribuci?n Argentina", "Pa?ses lim?trofes", "Notas")
+                     "Distribucion Argentina", "Paises limitrofes", "Notas")
 
 new_cols = cbind(col_scientif, col_status, col_dir )
 colnames(new_cols) = c("Nombre cientifico","Condicion","Direccion")
@@ -160,13 +147,13 @@ df = as.data.frame(df_raw)
 df$Especie = NULL
 
 df =  df[c("Especies","Familia","Genero", "Nombre cientifico", "Status","Habito","Sigla sp.", 
-               "Subespecie", "Sigla ssp", "Variedad", "Sigla Var", "Forma",
-               "Sigla f.", "Publicado en", "Volumen", "Paginas", "A?o", 
-                "Elevacion (m s.m.)",
-               "Distribucion Argentina", "Paises limitrofes", "Notas", "Condicion",
-               "Direccion")]
+           "Subespecie", "Sigla ssp", "Variedad", "Sigla Var", "Forma",
+           "Sigla f.", "Publicado en", "Volumen", "Paginas", "A?o", 
+           "Elevacion (m s.m.)",
+           "Distribucion Argentina", "Paises limitrofes", "Notas", "Condicion",
+           "Direccion")]
 
 write.table(df, file = "coincidencias.csv",row.names=FALSE, na="",col.names=TRUE, sep=",")
 write.table(df_error, file = "species_error.csv",row.names=FALSE, na="",col.names=FALSE, sep=",")
 
-print('############## Terminó de correr #####################')
+print('############## The End ########')
